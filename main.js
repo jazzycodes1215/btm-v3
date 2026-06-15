@@ -113,11 +113,11 @@ if (form && submit) {
    ════════════════════════════════════════════════ */
 
 const slides = [
-  { niche: 'Pool &amp; Spa Service',  result: '12 Customers to 31 — in 90 Days'        },
-  { niche: 'HVAC &amp; Plumbing',     result: '9 Leads / Week — Without Paying Angi'   },
-  { niche: 'Roofing &amp; Exterior',  result: '$15K Jobs — Closed Before the First Call'},
-  { niche: 'Commercial Cleaning',     result: '1 Video. 3 New Contracts in 60 Days.'    },
-  { niche: 'Lawn &amp; Landscaping',  result: '0 Online Presence. 22 Leads in 30 Days.' },
+  { niche: 'Pool & Spa Service',  result: '12 Customers to 31 — in 90 Days'        },
+  { niche: 'HVAC & Plumbing',     result: '9 Leads / Week — Without Paying Angi'   },
+  { niche: 'Roofing & Exterior',  result: '$15K Jobs — Closed Before the First Call'},
+  { niche: 'Commercial Cleaning', result: '1 Video. 3 New Contracts in 60 Days.'    },
+  { niche: 'Lawn & Landscaping',  result: '0 Online Presence. 22 Leads in 30 Days.' },
 ];
 
 const heroNicheEl   = document.getElementById('heroNiche');
@@ -139,7 +139,7 @@ function goToSlide(idx) {
   setTimeout(() => {
     const s = slides[idx];
     activeSlide = idx;
-    heroNicheEl.innerHTML    = s.niche;
+    heroNicheEl.textContent  = s.niche;
     heroResultEl.textContent = s.result;
     heroResultEl.classList.add('is-visible');
     heroCurrentEl.textContent = String(idx + 1).padStart(2, '0');

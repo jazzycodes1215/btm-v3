@@ -885,7 +885,12 @@ img { display: block; max-width: 100%; }
   background: var(--w10);
   border-radius: 3px 3px 0 0;
 }
-.md-bar-red { background: var(--red); }
+.md-bar-red  { background: var(--red); }
+.md-bar-h1   { height: 38%; }
+.md-bar-h2   { height: 52%; }
+.md-bar-h3   { height: 65%; }
+.md-bar-h4   { height: 80%; }
+.md-bar-h5   { height: 96%; }
 
 /* 9. RESULTS / WORK GRID (MURSEE film cards)
 --------------------------------------------------------------------- */
@@ -1193,6 +1198,12 @@ img { display: block; max-width: 100%; }
   border-radius: 1px;
   transition: width 0.1s linear;
 }
+
+/* Utility classes (replace inline styles for CSP compliance) */
+.text-accent-bold { color: var(--red); font-weight: 600; }
+.pc-value-accent  { color: var(--red); }
+.eyebrow-dim      { color: rgba(255,255,255,0.3); }
+.btn-standalone   { margin-top: 2.5rem; display: inline-flex; }
 
 .chip {
   background: var(--card-bg);

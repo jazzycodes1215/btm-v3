@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC Media — Visibility Diagnostic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #080808;
+            --white: #ffffff;
+            --red: #04b3b4;
+            --red-dark: #038a8b;
+            --w60: rgba(255, 255, 255, 0.60);
+            --w40: rgba(255, 255, 255, 0.40);
+            --w20: rgba(255, 255, 255, 0.20);
+            --w10: rgba(255, 255, 255, 0.10);
+            --w06: rgba(255, 255, 255, 0.06);
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-bdr: rgba(255, 255, 255, 0.08);
+            --font-display: 'Barlow Condensed', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--black);
+            color: var(--white);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* ===== GRAIN TEXTURE ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.022;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ===== INTRO SCREEN ===== */
+        .screen {
+            background: rgba(8, 8, 8, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-bdr);
+            border-radius: 16px;
+            padding: 60px 40px;
+            animation: slideIn 0.6s ease-out;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8);
+        }
+
+        .screen.hidden {
+            display: none;
+        }
+
+        .intro-screen {
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 56px;
+            margin-bottom: 28px;
+            opacity: 0.8;
+        }
+
+        .intro-screen h1 {
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            color: var(--white);
+        }
+
+        .intro-screen .subtitle {
+            font-size: 16px;
+            color: var(--w60);
+            margin-bottom: 12px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .intro-screen .tagline {
+            font-size: 13px;
+            color: var(--w40);
+            margin-bottom: 48px;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            font-family: var(--font-body);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--red);
+            margin-bottom: 16px;
+        }
+
+        .start-btn {
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            padding: 14px 40px;
+            border-radius: 6px;
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.2s, box-shadow 0.2s;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .start-btn:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(4, 179, 180, 0.3);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+        }
+
+        /* ===== QUIZ SCREEN ===== */
+        .quiz-screen {
+            padding: 50px 40px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 2px;
+            background: var(--card-bg);
+            border-radius: 1px;
+            margin-bottom: 48px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--red), #06d4d5);
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            font-family: var(--font-body);
+            font-size: 11px;
+            color: var(--red);
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 32px;
+            line-height: 1.1;
+            letter-spacing: -0.3px;
+            text-transform: uppercase;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 48px;
+        }
+
+        .option {
+            background: var(--card-bg);
+            border: 1px solid var(--card-bdr);
+            padding: 16px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            color: var(--w60);
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(4, 179, 180, 0.3);
+            color: var(--white);
+        }
+
+        .option.selected {
+            background: rgba(4, 179, 180, 0.15);
+            border-color: var(--red);
+            color: var(--white);
+        }
+
+        .navigation {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1px solid var(--card-bdr);
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--w60);
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.primary {
+            background: var(--red);
+            color: var(--white);
+            border: none;
+        }
+
+        .nav-btn.primary:hover:not(:disabled) {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(4, 179, 180, 0.3);
+        }
+
+        /* ===== LOADING SCREEN ===== */
+        .loading-screen {
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 30px;
+            border: 3px solid var(--card-bg);
+            border-top-color: var(--red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-family: var(--font-body);
+            font-size: 16px;
+            color: var(--w60);
+            font-weight: 500;
+        }
+
+        /* ===== RESULTS SCREEN ===== */
+        .results-screen {
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .score-badge {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 40px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            animation: bounceIn 0.8s ease-out;
+            background: linear-gradient(145deg, var(--red), #06d4d5);
+            box-shadow: 0 20px 60px rgba(4, 179, 180, 0.3);
+        }
+
+        .score-number {
+            font-family: var(--font-display);
+            font-size: 56px;
+            line-height: 1;
+            font-weight: 900;
+        }
+
+        .score-max {
+            font-size: 18px;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .score-label {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--white);
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+
+        .score-band {
+            font-size: 14px;
+            color: var(--w60);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .coi-section {
+            background: rgba(4, 179, 180, 0.08);
+            border: 1px solid rgba(4, 179, 180, 0.15);
+            padding: 32px;
+            border-radius: 10px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .coi-label {
+            font-family: var(--font-body);
+            font-size: 11px;
+            color: var(--red);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .coi-amount {
+            font-family: var(--font-display);
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--red);
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .coi-period {
+            font-size: 14px;
+            color: var(--w60);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .coi-breakdown {
+            font-size: 13px;
+            color: var(--w60);
+            line-height: 1.7;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 16px;
+            border-radius: 6px;
+            text-align: left;
+        }
+
+        .insights {
+            text-align: left;
+            margin: 32px 0;
+            padding: 24px;
+            background: rgba(4, 179, 180, 0.1);
+            border-left: 3px solid var(--red);
+            border-radius: 6px;
+        }
+
+        .insights h3 {
+            font-family: var(--font-display);
+            font-size: 12px;
+            color: var(--red);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .insights p {
+            font-size: 14px;
+            color: var(--w60);
+            line-height: 1.7;
+        }
+
+        .cta-button {
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            padding: 14px 40px;
+            border-radius: 6px;
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(4, 179, 180, 0.3);
+        }
+
+        /* ===== CONFETTI ===== */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            70% {
+                transform: scale(1.08);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .screen {
+                padding: 40px 24px;
+                border-radius: 12px;
+            }
+
+            .intro-screen h1 {
+                font-size: 28px;
+            }
+
+            .question-text {
+                font-size: 24px;
+                margin-bottom: 24px;
+            }
+
+            .score-badge {
+                width: 120px;
+                height: 120px;
+            }
+
+            .score-number {
+                font-size: 42px;
+            }
+
+            .score-label {
+                font-size: 22px;
+            }
+
+            .coi-amount {
+                font-size: 36px;
+            }
+
+            .coi-section {
+                padding: 24px;
+            }
+
+            .nav-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+
+            .start-btn {
+                padding: 12px 32px;
+                font-size: 13px;
+            }
+
+            .cta-button {
+                padding: 12px 32px;
+                font-size: 12px;
+            }
+
+            .screen:not(.intro-screen) {
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="container">
+        <!-- INTRO SCREEN -->
+        <div class="screen intro-screen" id="introScreen">
+            <div class="logo">🎯</div>
+            <span class="eyebrow">Free Diagnostic</span>
+            <h1>How Much Is Your Invisible Online Presence Costing You?</h1>
+            <p class="subtitle">Take our 2-minute diagnostic and discover exactly how much revenue you're leaving on the table.</p>
+            <p class="tagline">No email required. No sales pitch. Just real numbers.</p>
+            <button class="start-btn" onclick="startQuiz()">Start Diagnostic</button>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div class="screen quiz-screen hidden" id="quizScreen">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="question-number" id="questionNumber">Question 1 of 8</div>
+            <div class="question-text" id="questionText"></div>
+            <div class="options" id="optionsContainer"></div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="previousQuestion()" id="prevBtn" disabled>← Back</button>
+                <button class="nav-btn primary" onclick="nextQuestion()" id="nextBtn" disabled>Next →</button>
+            </div>
+        </div>
+
+        <!-- LOADING SCREEN -->
+        <div class="screen loading-screen hidden" id="loadingScreen">
+            <div class="spinner"></div>
+            <p class="loading-text">Analyzing your visibility...</p>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div class="screen results-screen hidden" id="resultsScreen">
+            <div class="score-badge" id="scoreBadge">
+                <div class="score-number" id="scoreNumber">0</div>
+                <div class="score-max">/100</div>
+            </div>
+            <div class="score-label" id="scoreLabel"></div>
+            <div class="score-band" id="scoreBand"></div>
+
+            <div class="coi-section">
+                <div class="coi-label">Your Monthly Cost of Inaction</div>
+                <div class="coi-amount" id="coiMonthly">$0</div>
+                <div class="coi-period" id="coiAnnual">$0/year</div>
+                <div class="coi-breakdown" id="coiBreakdown"></div>
+            </div>
+
+            <div class="insights" id="insightsBox"></div>
+
+            <a href="questionnaire.html" class="cta-button">Book Your Strategy Call</a>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Data
+        const questions = [
+            {
+                id: 1,
+                text: "How many Google reviews does your business have?",
+                type: "scoring",
+                options: [
+                    { text: "0–5 reviews", value: 1, weight: 1 },
+                    { text: "6–20 reviews", value: 3, weight: 3 },
+                    { text: "21–50 reviews", value: 6, weight: 6 },
+                    { text: "50+ reviews", value: 10, weight: 10 }
+                ]
+            },
+            {
+                id: 2,
+                text: "Are you posting video content consistently?",
+                type: "scoring",
+                options: [
+                    { text: "Never", value: 0, weight: 0 },
+                    { text: "Rarely (3–4 times/year)", value: 2, weight: 2 },
+                    { text: "Monthly (1–2 per month)", value: 5, weight: 5 },
+                    { text: "Weekly (2+ per week)", value: 10, weight: 10 }
+                ]
+            },
+            {
+                id: 3,
+                text: "What is your average customer value (total lifetime spend)?",
+                type: "input",
+                options: [
+                    { text: "$100–$500", value: 300, weight: 0 },
+                    { text: "$500–$2,000", value: 1250, weight: 0 },
+                    { text: "$2,000–$10,000", value: 6000, weight: 0 },
+                    { text: "$10,000+", value: 15000, weight: 0 }
+                ],
+                storageKey: "customerValue"
+            },
+            {
+                id: 4,
+                text: "How many new leads come from online sources each month?",
+                type: "input",
+                options: [
+                    { text: "0–2 leads", value: 1, weight: 2 },
+                    { text: "3–10 leads", value: 6, weight: 5 },
+                    { text: "11–30 leads", value: 20, weight: 8 },
+                    { text: "30+ leads", value: 40, weight: 10 }
+                ],
+                storageKey: "monthlyLeads"
+            },
+            {
+                id: 5,
+                text: "Do you have a professional website that converts visitors?",
+                type: "scoring",
+                options: [
+                    { text: "No website", value: 0, weight: 0 },
+                    { text: "Outdated/minimal", value: 2, weight: 2 },
+                    { text: "Basic but functional", value: 5, weight: 5 },
+                    { text: "Yes, strong converter", value: 10, weight: 10 }
+                ]
+            },
+            {
+                id: 6,
+                text: "Do new leads get followed up with automatically?",
+                type: "scoring",
+                options: [
+                    { text: "No system", value: 0, weight: 0 },
+                    { text: "Manually followed up, no schedule", value: 2, weight: 2 },
+                    { text: "Yes, within hours", value: 5, weight: 5 },
+                    { text: "Yes, within minutes", value: 10, weight: 10 }
+                ]
+            },
+            {
+                id: 7,
+                text: "How would you describe your social media presence?",
+                type: "scoring",
+                options: [
+                    { text: "None", value: 0, weight: 0 },
+                    { text: "Minimal (exists, rarely posted)", value: 2, weight: 2 },
+                    { text: "Inconsistent (posts happen, no schedule)", value: 5, weight: 5 },
+                    { text: "Consistent & engaging", value: 10, weight: 10 }
+                ]
+            },
+            {
+                id: 8,
+                text: "What's your biggest marketing challenge right now?",
+                type: "input",
+                options: [
+                    { text: "Not enough leads", value: "LEAD_GENERATION", weight: 0 },
+                    { text: "Content takes too long", value: "CONTENT_PRODUCTION", weight: 0 },
+                    { text: "Nothing converts", value: "CONVERSION", weight: 0 },
+                    { text: "Don't know where to start", value: "NO_STRATEGY", weight: 0 }
+                ],
+                storageKey: "primaryPain"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = {};
+
+        function startQuiz() {
+            document.getElementById("introScreen").classList.add("hidden");
+            document.getElementById("quizScreen").classList.remove("hidden");
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById("questionNumber").textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById("questionText").textContent = q.text;
+
+            const container = document.getElementById("optionsContainer");
+            container.innerHTML = "";
+
+            q.options.forEach((opt, idx) => {
+                const button = document.createElement("div");
+                button.className = "option";
+                button.textContent = opt.text;
+                button.onclick = () => selectOption(idx);
+
+                if (answers[currentQuestion] === idx) {
+                    button.classList.add("selected");
+                }
+
+                container.appendChild(button);
+            });
+
+            updateProgressBar();
+            updateNavButtons();
+        }
+
+        function selectOption(idx) {
+            answers[currentQuestion] = idx;
+            showQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                submitQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById("progressFill").style.width = progress + "%";
+        }
+
+        function updateNavButtons() {
+            document.getElementById("prevBtn").disabled = currentQuestion === 0;
+            document.getElementById("nextBtn").disabled = answers[currentQuestion] === undefined;
+        }
+
+        function submitQuiz() {
+            triggerConfetti();
+            document.getElementById("quizScreen").classList.add("hidden");
+            document.getElementById("loadingScreen").classList.remove("hidden");
+
+            setTimeout(() => {
+                document.getElementById("loadingScreen").classList.add("hidden");
+                showResults();
+            }, 1500);
+        }
+
+        function calculateResults() {
+            let totalScore = 0;
+            const scoringQuestions = [0, 1, 4, 5, 6];
+
+            scoringQuestions.forEach(qIdx => {
+                const q = questions[qIdx];
+                const selectedIdx = answers[qIdx];
+                if (selectedIdx !== undefined) {
+                    totalScore += q.options[selectedIdx].weight;
+                }
+            });
+
+            const visibilityScore = Math.round((totalScore / 70) * 100);
+
+            const customerValueIdx = answers[2];
+            const customerValue = questions[2].options[customerValueIdx].value;
+
+            const monthlyLeadsIdx = answers[3];
+            const monthlyLeads = questions[3].options[monthlyLeadsIdx].value;
+
+            const primaryPainIdx = answers[7];
+            const primaryPain = questions[7].options[primaryPainIdx].value;
+
+            let conversionRate;
+            if (monthlyLeads <= 2) conversionRate = 0.10;
+            else if (monthlyLeads <= 10) conversionRate = 0.15;
+            else if (monthlyLeads <= 30) conversionRate = 0.20;
+            else conversionRate = 0.25;
+
+            const improvedLeads = monthlyLeads * 2.5;
+            const additionalCustomers = (improvedLeads - monthlyLeads) * conversionRate;
+            const monthlyCoI = Math.round(additionalCustomers * customerValue);
+            const annualCoI = monthlyCoI * 12;
+
+            return {
+                visibilityScore,
+                monthlyCoI,
+                annualCoI,
+                customerValue,
+                monthlyLeads,
+                improvedLeads: Math.round(improvedLeads * 10) / 10,
+                additionalCustomers: Math.round(additionalCustomers * 100) / 100,
+                conversionRate: Math.round(conversionRate * 100),
+                primaryPain
+            };
+        }
+
+        function getScoreBand(score) {
+            if (score <= 19) return { label: "Invisible", band: "No online presence at all. You're losing most leads.", className: "invisible" };
+            if (score <= 39) return { label: "Hidden in Plain Sight", band: "Your business exists but nobody can find it. Active crisis.", className: "hidden" };
+            if (score <= 59) return { label: "Flickering", band: "Some visibility, but inconsistent. Leaving major money on the table.", className: "flickering" };
+            if (score <= 79) return { label: "Visible", band: "Decent foundation. Room to scale significantly.", className: "visible" };
+            return { label: "Commanding", band: "Strong online presence. Now it's about optimization and growth.", className: "commanding" };
+        }
+
+        function getPainInsight(primaryPain, monthlyLeads, improvedLeads) {
+            const insights = {
+                "LEAD_GENERATION": `Your visibility gap is your #1 lead blocker. You're currently getting ${Math.round(monthlyLeads)} leads/month. With better video content and local SEO, you could realistically reach ${Math.round(improvedLeads)} leads/month — that's the gap we close first.`,
+                "CONTENT_PRODUCTION": `You're right — content takes time. That's exactly why clients hire us. Imagine doubling your leads without doubling your workload. That's what a partner does.`,
+                "CONVERSION": `More leads don't help if they don't convert. You need better follow-up automation plus a conversion-focused website. We'll fix both.`,
+                "NO_STRATEGY": `Starting from zero? That's actually your advantage. A clear strategy compounds fast. Let's build yours in the call.`
+            };
+            return insights[primaryPain] || "Let's talk about your specific challenges.";
+        }
+
+        function showResults() {
+            const results = calculateResults();
+            const band = getScoreBand(results.visibilityScore);
+
+            document.getElementById("scoreNumber").textContent = results.visibilityScore;
+            document.getElementById("scoreLabel").textContent = band.label;
+            document.getElementById("scoreBand").textContent = band.band;
+
+            document.getElementById("coiMonthly").textContent = `$${results.monthlyCoI.toLocaleString()}`;
+            document.getElementById("coiAnnual").textContent = `$${results.annualCoI.toLocaleString()}/year`;
+
+            const breakdown = `
+                With an average customer value of <strong>$${results.customerValue.toLocaleString()}</strong>,
+                and potential leads increasing from <strong>${Math.round(results.monthlyLeads)}</strong> to
+                <strong>${Math.round(results.improvedLeads)}</strong> per month,
+                that's <strong>${results.additionalCustomers}</strong> additional customers ×
+                $${results.customerValue.toLocaleString()} =
+                <strong>$${results.monthlyCoI.toLocaleString()}</strong> walking out the door every 30 days.
+            `;
+            document.getElementById("coiBreakdown").innerHTML = breakdown;
+
+            const insight = getPainInsight(results.primaryPain, results.monthlyLeads, results.improvedLeads);
+            document.getElementById("insightsBox").innerHTML = `
+                <h3>Your Biggest Opportunity</h3>
+                <p>${insight}</p>
+            `;
+
+            document.getElementById("resultsScreen").classList.remove("hidden");
+        }
+
+        function triggerConfetti() {
+            const canvas = document.getElementById("confetti-canvas");
+            const ctx = canvas.getContext("2d");
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ["#04b3b4", "#06d4d5", "#ffffff", "#038a8b"];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: -10,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: Math.random() * 5 + 5,
+                    life: 1,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 6 + 2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.y += p.vy;
+                    p.x += p.vx;
+                    p.vy += 0.2;
+                    p.life -= 0.015;
+
+                    ctx.fillStyle = p.color + Math.round(p.life * 255).toString(16).padStart(2, "0");
+                    ctx.fillRect(p.x, p.y, p.size, p.size);
+
+                    if (p.life <= 0) particles.splice(i, 1);
+                }
+
+                if (particles.length > 0) {
+                    requestAnimationFrame(animate);
+                }
+            }
+
+            animate();
+        }
+
+        // Initialize
+        updateNavButtons();
+    </script>
+</body>
+</html>
